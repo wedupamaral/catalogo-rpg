@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 type Artifact = {
@@ -12,41 +13,56 @@ type Artifact = {
   price: number;
   short_description: string;
   effect_text: string;
-  rules_text: string;
-  flavor_text: string;
   image_url: string;
 };
 
-export default function ArtifactPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function ArtifactPage() {
+
+  const params = useParams();
+
+  const id = params.id as string;
 
   const [artifact, setArtifact] =
     useState<Artifact | null>(null);
+
+  const [loading, setLoading] =
+    useState(true);
 
   useEffect(() => {
 
     async function loadArtifact() {
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("artifacts")
         .select("*")
-        .eq("id", params.id)
+        .eq("id", id)
         .single();
 
+      console.log(data, error);
+
       setArtifact(data);
+
+      setLoading(false);
     }
 
-    loadArtifact();
+    if (id) {
+      loadArtifact();
+    }
 
-  }, [params.id]);
+  }, [id]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-black text-white p-10">
+        Carregando artefato...
+      </main>
+    );
+  }
 
   if (!artifact) {
     return (
       <main className="min-h-screen bg-black text-white p-10">
-        Carregando artefato...
+        Artefato não encontrado.
       </main>
     );
   }
@@ -92,33 +108,29 @@ export default function ArtifactPage({
 
         </div>
 
-        <div className="space-y-10">
+        <section>
 
-          <section>
+          <h2 className="text-2xl font-bold mb-4">
+            Descrição
+          </h2>
 
-            <h2 className="text-2xl font-bold mb-4">
-              Descrição
-            </h2>
+          <p className="text-zinc-300 leading-relaxed text-lg">
+            {artifact.short_description || "Sem descrição."}
+          </p>
 
-            <p className="text-zinc-300 leading-relaxed text-lg">
-              {artifact.short_description || "Sem descrição."}
-            </p>
+        </section>
 
-          </section>
+        <section className="mt-10">
 
-          <section>
+          <h2 className="text-2xl font-bold mb-4">
+            Efeitos
+          </h2>
 
-            <h2 className="text-2xl font-bold mb-4">
-              Efeitos
-            </h2>
+          <p className="text-zinc-300 whitespace-pre-wrap leading-relaxed text-lg">
+            {artifact.effect_text || "Sem efeitos cadastrados."}
+          </p>
 
-            <p className="text-zinc-300 whitespace-pre-wrap leading-relaxed text-lg">
-              {artifact.effect_text || "Sem efeitos cadastrados."}
-            </p>
-
-          </section>
-
-        </div>
+        </section>
 
       </div>
 
