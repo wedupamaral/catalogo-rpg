@@ -11,7 +11,7 @@ type Artifact = {
   type: string;
   price: number;
   short_description: string;
-  image_url: string;
+  effect_text: string;
 };
 
 const rarityColors: Record<string, string> = {
@@ -35,13 +35,31 @@ const rarityColors: Record<string, string> = {
   prismatico: "border-fuchsia-400",
 };
 
+function getArtifactImage(name: string) {
+
+  const normalizedName = name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, "")
+    .replace(/\s+/g, "-");
+
+  return `https://jrvxpyypfrshucugjfdo.supabase.co/storage/v1/object/public/artifacts/${normalizedName}.png`;
+}
+
 export default function Home() {
+
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
+
   const [search, setSearch] = useState("");
-  const [selectedRarity, setSelectedRarity] = useState("Todos");
+
+  const [selectedRarity, setSelectedRarity] =
+    useState("Todos");
 
   useEffect(() => {
+
     async function loadArtifacts() {
+
       const { data, error } = await supabase
         .from("artifacts")
         .select("*")
@@ -55,9 +73,32 @@ export default function Home() {
     }
 
     loadArtifacts();
+
   }, []);
 
+  async function copyArtifact(artifact: Artifact) {
+
+    const text = `
+${artifact.name}
+
+Raridade: ${artifact.rarity}
+Tipo: ${artifact.type}
+ID Rolagem: ${artifact.roll_number}
+
+Descrição:
+${artifact.short_description || "Sem descrição."}
+
+Efeitos:
+${artifact.effect_text || "Sem efeitos cadastrados."}
+`;
+
+    await navigator.clipboard.writeText(text);
+
+    alert("Artefato copiado!");
+  }
+
   const rarities = useMemo(() => {
+
     const unique = [
       ...new Set(
         artifacts
@@ -67,6 +108,7 @@ export default function Home() {
     ];
 
     return ["Todos", ...unique];
+
   }, [artifacts]);
 
   const filteredArtifacts = useMemo(() => {
@@ -208,19 +250,13 @@ export default function Home() {
                 `}
               >
 
-                <div className="h-52 bg-zinc-800 flex items-center justify-center overflow-hidden">
+                <div className="h-52 bg-zinc-800 overflow-hidden">
 
-                  {artifact.image_url ? (
-                    <img
-                      src={artifact.image_url}
-                      alt={artifact.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="text-zinc-500 text-sm">
-                      Sem imagem
-                    </div>
-                  )}
+                  <img
+                    src={getArtifactImage(artifact.name)}
+                    alt={artifact.name}
+                    className="w-full h-full object-cover"
+                  />
 
                 </div>
 
@@ -275,23 +311,11 @@ export default function Home() {
 
                   </div>
 
-                  <p className="text-zinc-300 leading-relaxed min-h-[70px]">
+                  <p className="text-zinc-300 leading-relaxed min-h-[70px] whitespace-pre-wrap">
                     {artifact.short_description || "Descrição não cadastrada."}
                   </p>
 
-                  <div className="mt-6 flex justify-between items-center">
-
-                    <div>
-
-                      <p className="text-zinc-500 text-sm">
-                        Valor
-                      </p>
-
-                      <p className="text-2xl font-black text-yellow-400">
-                        R$ {artifact.price || 0}
-                      </p>
-
-                    </div>
+                  <div className="mt-6 flex gap-3 flex-wrap">
 
                     <a
                       href={`/artifacts/${artifact.id}`}
@@ -306,6 +330,21 @@ export default function Home() {
                     >
                       Ver Detalhes
                     </a>
+
+                    <button
+                      onClick={() => copyArtifact(artifact)}
+                      className="
+                        bg-zinc-800
+                        hover:bg-zinc-700
+                        border border-zinc-700
+                        px-5 py-3
+                        rounded-xl
+                        font-bold
+                        transition-all
+                      "
+                    >
+                      Copiar
+                    </button>
 
                   </div>
 
