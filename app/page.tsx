@@ -44,7 +44,7 @@ function getArtifactImage(name: string) {
     .replace(/[^a-z0-9 ]/g, "")
     .replace(/\s+/g, "-");
 
-  return `https://jrvxpyypfrshucugjfdo.supabase.co/storage/v1/object/public/artifacts/${normalizedName}.png`;
+  return `https://jrvxpyypfrshucugjfdo.supabase.co/storage/v1/object/public/artifacts/${normalizedName}.png?v=${Date.now()}`;
 }
 
 export default function Home() {

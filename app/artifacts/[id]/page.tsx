@@ -24,7 +24,7 @@ function getArtifactImage(name: string) {
     .replace(/[^a-z0-9 ]/g, "")
     .replace(/\s+/g, "-");
 
-  return `https://jrvxpyypfrshucugjfdo.supabase.co/storage/v1/object/public/artifacts/${normalizedName}.png`;
+  return `https://jrvxpyypfrshucugjfdo.supabase.co/storage/v1/object/public/artifacts/${normalizedName}.png?v=${Date.now()}`;
 }
 
 export default function ArtifactPage() {
@@ -49,8 +49,6 @@ ${artifact.name}
 Raridade: ${artifact.rarity}
 Tipo: ${artifact.type}
 ID Rolagem: ${artifact.roll_number}
-
-Valor: R$ ${artifact.price || 0}
 
 Descrição:
 ${artifact.short_description || "Sem descrição."}
@@ -173,18 +171,6 @@ ${artifact.effect_text || "Sem efeitos cadastrados."}
                 </span>
 
               </div>
-
-            </div>
-
-            <div className="mb-6">
-
-              <p className="text-zinc-400 text-sm mb-2">
-                VALOR
-              </p>
-
-              <p className="text-5xl font-black text-yellow-400">
-                R$ {artifact.price || 0}
-              </p>
 
             </div>
 
