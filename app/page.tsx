@@ -167,11 +167,11 @@ ${artifact.effect_text || "Sem efeitos cadastrados."}
         <div className="mb-10">
 
           <h1 className="text-5xl font-black tracking-wide mb-2">
-            Catálogo de Artefatos
+            Códice de Artefatos de Miekra
           </h1>
 
           <p className="text-zinc-400 text-lg">
-            Arquivo Arcano de Miecra
+            Arquivo Arcano de Miekra
           </p>
 
         </div>
